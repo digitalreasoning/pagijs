@@ -1,4 +1,5 @@
 var Node = require('./node');
+var Edge = require('./edge');
 var GraphImpl = require('graphlib').Graph;
 var deepClone = require('../util').deepClone;
 
@@ -73,7 +74,7 @@ Graph.prototype.addNode = function(node, connectEdges) {
         node.setId(id);
     }
     // console.log("ADD NODE id: " + node.getId() + ", type: " + node.getType() + ".");
-    connectEdges = connectEdges === undefined ? true : false;
+    connectEdges = connectEdges === undefined ? true : connectEdges;
     this._graphImpl.setNode(node.getId(), node);
     node.setGraph(this);
     // Create node type buckets.
@@ -85,7 +86,6 @@ Graph.prototype.removeNode = function(node) {
     if (!(node instanceof Node)) {
         throw Error("Parameter must be an instance of Node when calling Graph.removeNode.");
     }
-    node.removeEdges();
     this._nodeTypes[node.getType()] = this._nodeTypes[node.getType()].filter(function(aNode) {
         return aNode.getId() !== node.getId();
     });
@@ -95,10 +95,10 @@ Graph.prototype.removeNode = function(node) {
     node.removeGraph();
     this._graphImpl.removeNode(node.getId());
 };
-function logEdgeError(graph, sourceId, targetId, edgeType) {
+function logEdgeTargetError(graph, sourceId, targetId, edgeType) {
     var message;
 
-    if (!graph.getNodeById(sourceId) && !graph.getNodeById(targetId)) {
+    if (!graph.hasNode(sourceId) && !graph.hasNode(targetId)) {
         message = [
             'Cannot create `',
             edgeType,
@@ -108,7 +108,7 @@ function logEdgeError(graph, sourceId, targetId, edgeType) {
             targetId,
             '`.'
         ].join('');
-    } else if (!graph.getNodeById(sourceId)) {
+    } else if (!graph.hasNode(sourceId)) {
         message = [
             'Cannot create `',
             edgeType,
@@ -118,7 +118,7 @@ function logEdgeError(graph, sourceId, targetId, edgeType) {
             targetId,
             '`.'
         ].join('');
-    } else if (!graph.getNodeById(targetId)) {
+    } else if (!graph.hasNode(targetId)) {
         message = [
             'Cannot create `',
             edgeType,
@@ -133,14 +133,23 @@ function logEdgeError(graph, sourceId, targetId, edgeType) {
     if (message) { console.warn(message); }
     return message;
 }
-Graph.prototype.setEdge = function(sourceId, targetId, edgeType) {
-    if (!this.getNodeById(sourceId) || !this.getNodeById(targetId)) {
-        return logEdgeError(this, sourceId, targetId, edgeType);
+Graph.prototype.setEdge = function(sourceId, targetId, edgeType, toType) {
+    if (!this.hasNode(sourceId) || !this.hasNode(targetId)) {
+        return logEdgeTargetError(this, sourceId, targetId, edgeType);
     }
-    this._graphImpl.setEdge(sourceId, targetId, edgeType);
+
+    toType = toType || this.getNodeById(targetId).getType();
+    var newEdge = new Edge(sourceId, targetId, toType, edgeType);
+
+    this._graphImpl.setEdge(sourceId, targetId, newEdge, edgeType);
 };
-Graph.prototype.getEdge = function(sourceId, targetId) {
-    return this._graphImpl.edge(sourceId, targetId);
+Graph.prototype.setEdges = function(edges) {
+    edges.forEach(function(edge) {
+        this.setEdge(edge.sourceId, edge.targetId, edge.type, edge.toType);
+    }, this);
+};
+Graph.prototype.getEdge = function(sourceId, targetId, edgeType) {
+    return this._graphImpl.edge(sourceId, targetId, edgeType);
 };
 Graph.prototype.removeEdge = function(sourceId, targetId, edgeType) {
     this._graphImpl.removeEdge(sourceId, targetId, edgeType);
@@ -152,6 +161,16 @@ Graph.prototype.connectEdges = function() {
     });
     // console.log("Graph.connectEdges ------------------------");
 };
+Graph.prototype.inEdges = function(sourceId, targetId) {
+    return this._graphImpl.inEdges(sourceId, targetId);
+};
+Graph.prototype.outEdges = function(sourceId, targetId) {
+    return this._graphImpl.outEdges(sourceId, targetId);
+};
+Graph.prototype.hasEdge = function(sourceId, targetId, type) {
+    return this._graphImpl.hasEdge(sourceId, targetId, type);
+};
+Graph.prototype.hasNode = function(nodeId) { return this._graphImpl.hasNode(nodeId); };
 Graph.prototype.getNodeById = function(nodeId) { return this._graphImpl.node(nodeId); };
 Graph.prototype.getNodeTypes = function() { return Object.keys(this._nodeTypes); };
 Graph.prototype.getNodesByType = function(nodeType) {

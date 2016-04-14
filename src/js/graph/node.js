@@ -1,14 +1,15 @@
-var Edge = require('./edge');
 var VALID_PROP_TYPES = ['string', 'float', 'integer', 'boolean'];
+var CHILD_EDGE_TYPE = require('./constants').CHILD_EDGE_TYPE;
+var Edge = require('./edge');
 
 function Node(id, type) {
     this._id = id || null;
     this._type = type || null;
     this._features = { };
     this._properties = { };
-    this._edges = [];
     this._graph = null;
 }
+
 Node.prototype.setId = function(id) { this._id = id; };
 Node.prototype.getId = function() { return this._id; };
 Node.prototype.setType = function(type) { this._type = type; };
@@ -60,16 +61,20 @@ Node.prototype.getProps = function() {
 };
 Node.prototype.addEdge = function(targetId, targetType, edgeType, connectEdges) {
     // console.log("ADD EDGE for nodeId: " + this.getId() + ", targetId: " + targetId + ", targetType: " + targetType + ", edgeType: " + edgeType + ".");
-    this._edges.push(new Edge(targetId, targetType, edgeType));
-    connectEdges = connectEdges === undefined ? true : connectEdges;
+    connectEdges = (connectEdges === undefined) ? true : connectEdges;
+
+    this._graph.setEdge(this.getId(), targetId, edgeType, targetType);
+
     if (connectEdges) { this.connectEdges(); }
 };
 Node.prototype.getEdges = function() {
-    return this._edges.map(function(edge) { return edge; });
+    return this._graph.outEdges(this.getId()).map(function(edge) {
+        return this._graph.getEdge(edge.v, edge.w, edge.name);
+    }, this);
 };
 Node.prototype.getEdgesByType = function(edgeType) {
-    return this._edges.filter(function(edge) {
-        return edge.getEdgeType() === edgeType;
+    return this.getEdges().filter(function(edge) {
+        return edge.edgeType === edgeType;
     });
 };
 Node.prototype.getFirstEdgeByType = function(edgeType) {
@@ -91,6 +96,10 @@ Node.prototype.setGraph = function(graph) {
 Node.prototype.removeGraph = function() { this._graph = null; };
 Node.prototype.connectEdges = function() {
     if (!this._graph) { return; }
+
+    this._connectEdgesSpanContainer();
+    this._connectEdgesSequence();
+
     var graph = this._graph;
     this.getEdges().forEach(function(edge) {
         // Check if the edge exists before creating it.
@@ -122,9 +131,9 @@ Node.prototype._connectEdgesSpanContainer = function() {
             }
             // console.log("Node._connectEdgesSpanContainer: Checking node '" + linkNode.getId() + "', type: '" + linkNode.getType() + "'.");
             // Don't create the edge if it already exists
-            if (!graph.getEdge(this.getId(), linkNode.getId())) {
+            if (!graph.hasEdge(this.getId(), linkNode.getId(), CHILD_EDGE_TYPE)) {
                 // console.log("LINK EDGE nodeId: " + this.getId() + ", targetId: " + linkNode.getId() + ", type: child.");
-                graph.setEdge(this.getId(), linkNode.getId(), 'child');
+                graph.setEdge(this.getId(), linkNode.getId(), CHILD_EDGE_TYPE);
             }
             if (linkNode === lastNode) {
                 // console.log("Node._connectEdgesSpanContainer: LinkNode === LastNode.");
@@ -160,15 +169,15 @@ Node.prototype._connectEdgesSequence = function() {
         prevNode.addEdge(self.getId(), self.getType(), 'next');
         // Next node is already added via the generic edge loop above.
         // Set parent edges based on this node's neighbors
-        var prevInEdgeImpls = prevNode._getEdgesImplByLabels('in', ['first', 'last', 'child']);
-        var nextInEdgeImpls = self.next()._getEdgesImplByLabels('in', ['first', 'last', 'child']);
+        var prevInEdgeImpls = prevNode._getEdgesImplByLabels('in', ['first', 'last', CHILD_EDGE_TYPE]);
+        var nextInEdgeImpls = self.next()._getEdgesImplByLabels('in', ['first', 'last', CHILD_EDGE_TYPE]);
         // Matching parents between the prev and next nodes will be applied to this node.
         prevInEdgeImpls.forEach(function(prevInEdgeImpl) {
             nextInEdgeImpls.forEach(function(nextInEdgeImpl) {
                 if (prevInEdgeImpl.v == nextInEdgeImpl.v) {
                     var prevParentNode = self._graph.getNodeById(prevInEdgeImpl.v);
                     // console.log("LINK EDGE nodeId: " + prevParentNode.getId() + ", targetId: " + self.getId() + ", type: child.");
-                    self._graph.setEdge(prevParentNode.getId(), self.getId(), 'child');
+                    self._graph.setEdge(prevParentNode.getId(), self.getId(), CHILD_EDGE_TYPE);
                 }
             });
         });
@@ -315,7 +324,7 @@ Node.prototype._getParentsOfType = function(fnName, nodeType, stopOnFirst) {
     }
     var currentNode, parentEdges, i, matchingNodes = [], self = this;
     // Store nodes that need to be visited in the currentNodes array.
-    var currentNodes = this._getEdgesImplByLabels('in', ['child']).map(function(edgeImpl) {
+    var currentNodes = this._getEdgesImplByLabels('in', [CHILD_EDGE_TYPE]).map(function(edgeImpl) {
         return self._graph.getNodeById(edgeImpl.v);
     });
     while (true) {
@@ -328,7 +337,7 @@ Node.prototype._getParentsOfType = function(fnName, nodeType, stopOnFirst) {
             else { matchingNodes.push(currentNode); }
         }
         // Node was not the right type, check it's parents.
-        parentEdges = currentNode._getEdgesImplByLabels('in', ['child']);
+        parentEdges = currentNode._getEdgesImplByLabels('in', [CHILD_EDGE_TYPE]);
         for (i = 0; i < parentEdges.length; i++) {
             currentNodes.push(self._graph.getNodeById(parentEdges[i].v));
         }
