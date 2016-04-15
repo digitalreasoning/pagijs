@@ -9,6 +9,7 @@ function Node(id, type) {
     this._edges = [];
     this._graph = null;
 }
+
 Node.prototype.setId = function(id) { this._id = id; };
 Node.prototype.getId = function() { return this._id; };
 Node.prototype.setType = function(type) { this._type = type; };
