@@ -119,6 +119,12 @@ Graph.prototype.removeNode = function(node) {
     if (!(node instanceof Node)) {
         throw Error('Parameter must be an instance of Node when calling Graph.removeNode.');
     }
+    this._nodeTypes[node.getType()] = this._nodeTypes[node.getType()].filter(function(aNode) {
+        return aNode.getId() !== node.getId();
+    });
+    if (this._nodeTypes[node.getType()].length === 0) {
+        delete this._nodeTypes[node.getType()];
+    }
     node.removeGraph();
     this._graphImpl.removeNode(node.getId());
 };
@@ -134,6 +140,21 @@ Graph.prototype.addEdge = function(sourceId, targetId, edgeType, targetType) {
     var edge = new Edge(sourceId, targetId, targetType, edgeType);
 
     this._graphImpl.setEdge(sourceId, targetId, edge, edgeType);
+}
+Graph.prototype.setEdge = function(sourceId, targetId, edgeType, toType) {
+    if (!this.hasNode(sourceId) || !this.hasNode(targetId)) {
+        return logEdgeTargetError(this, sourceId, targetId, edgeType);
+    }
+
+    toType = toType || this.getNodeById(targetId).getType();
+    var newEdge = new Edge(sourceId, targetId, toType, edgeType);
+
+    this._graphImpl.setEdge(sourceId, targetId, newEdge, edgeType);
+};
+Graph.prototype.setEdges = function(edges) {
+    edges.forEach(function(edge) {
+        this.setEdge(edge.sourceId, edge.targetId, edge.type, edge.toType);
+    }, this);
 };
 Graph.prototype.getEdge = function(sourceId, targetId, edgeType) {
     return this._graphImpl.edge(sourceId, targetId, edgeType);
@@ -147,6 +168,32 @@ Graph.prototype.connectEdges = function() {
         node.connectEdges();
     });
     // console.log("Graph.connectEdges ------------------------");
+};
+Graph.prototype.inEdges = function(sourceId, targetId) {
+    return this._graphImpl.inEdges(sourceId, targetId);
+};
+Graph.prototype.outEdges = function(sourceId, targetId) {
+    return this._graphImpl.outEdges(sourceId, targetId);
+};
+Graph.prototype.hasEdge = function(sourceId, targetId, type) {
+    return this._graphImpl.hasEdge(sourceId, targetId, type);
+};
+Graph.prototype.hasNode = function(nodeId) { return this._graphImpl.hasNode(nodeId); };
+Graph.prototype.getNodeById = function(nodeId) { return this._graphImpl.node(nodeId); };
+Graph.prototype.getNodeTypes = function() { return Object.keys(this._nodeTypes); };
+Graph.prototype.getNodesByType = function(nodeType) {
+    if (this._nodeTypes[nodeType] === undefined) { return []; }
+    return this._nodeTypes[nodeType].map(function(node) {
+        return node;
+    });
+};
+Graph.prototype.getNodeIds = function() {
+    return this._graphImpl.nodes();
+};
+Graph.prototype.getNodes = function() {
+    return this.getNodeIds().map(function(nodeId) {
+        return this.getNodeById(nodeId);
+    }, this);
 };
 
 // Manipulation functions

@@ -21,6 +21,7 @@ GraphParserXml.prototype.parse = function(readableStream) {
             'bool': 'boolean'
         };
         var multiValData = null;
+        var edges = [];
 
         streamParser.on("opentag", function(tag) {
             currentTag = tag;
@@ -133,7 +134,13 @@ GraphParserXml.prototype.parse = function(readableStream) {
                     if (node) {
                         try {
                             var eAttrs = tag.attributes;
-                            node.addEdge(eAttrs.to.value, eAttrs.toType.value, eAttrs.type.value, false);
+                            edges.push({
+                                sourceId: node.getId(),
+                                targetId: eAttrs.to.value,
+                                type: eAttrs.type.value,
+                                toType: eAttrs.toType.value
+                            });
+                            // node.addEdge(eAttrs.to.value, eAttrs.toType.value, eAttrs.type.value, false);
                         } catch (err) {
                             reject(new Error("Failed to parse edge for node `" + node.id + "`. [" + err + "]"));
                         }
@@ -166,6 +173,7 @@ GraphParserXml.prototype.parse = function(readableStream) {
             }
         });
         streamParser.on("end", function() {
+            graph.setEdges(edges);
             graph.connectEdges();
             resolve(graph);
         });
