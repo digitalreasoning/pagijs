@@ -1,13 +1,20 @@
-var Edge = require('./edge');
-var VALID_PROP_TYPES = ['string', 'float', 'integer', 'boolean'];
+'use strict';
 
-function Node(id, type) {
+var Edge = require('./edge');
+var constants = require('./constants');
+var VALID_PROP_TYPES = constants.VALID_PROP_TYPES;
+var STR_PROP = constants.STR_PROP;
+var FLOAT_PROP = constants.FLOAT_PROP;
+var INT_PROP = constants.INT_PROP;
+var BOOL_PROP = constants.BOOL_PROP;
+
+function Node(id, graph, type) {
     this._id = id || null;
     this._type = type || null;
     this._features = { };
     this._properties = { };
     this._edges = [];
-    this._graph = null;
+    this._graph = graph;
 }
 
 Node.prototype.setId = function(id) { this._id = id; };
@@ -17,13 +24,13 @@ Node.prototype.getType = function() { return this._type; };
 function convertValue(type, value) {
     var newVal;
     switch (type) {
-        case VALID_PROP_TYPES[0]:
+        case VALID_PROP_TYPES[STR_PROP]:
             newVal = value.toString(); break;
-        case VALID_PROP_TYPES[1]:
+        case VALID_PROP_TYPES[FLOAT_PROP]:
             newVal = parseFloat(value); break;
-        case VALID_PROP_TYPES[2]:
+        case VALID_PROP_TYPES[INT_PROP]:
             newVal = parseInt(value); break;
-        case VALID_PROP_TYPES[3]:
+        case VALID_PROP_TYPES[BOOL_PROP]:
             newVal = value === 'true'; break;
         default:
             throw Error('Unknown Node property type `' + type + '`.');
@@ -100,7 +107,7 @@ Node.prototype.connectEdges = function() {
         this._connectEdgesSpanContainer();
         this._connectEdgesSequence();
         // console.log("LINK EDGE nodeId: " + this.getId() + ", targetId: " + edge.getTargetId() + ", type: " + edge.getEdgeType() + ".");
-        graph.setEdge(this.getId(), edge.getTargetId(), edge.getEdgeType());
+        graph.addEdge(this.getId(), edge.getTargetId(), edge.getEdgeType());
     }, this);
 };
 // If node is a span container create edges to all it's children.
