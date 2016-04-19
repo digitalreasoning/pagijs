@@ -49,7 +49,7 @@ function deepClone(o) {
 function logEdgeError(graph, sourceId, targetId, edgeType) {
     var message;
 
-    if (!graph.getNodeById(sourceId) && !graph.getNodeById(targetId)) {
+    if (!graph.nodeExists(sourceId) && !graph.nodeExists(targetId)) {
         message = [
             'Cannot create `',
             edgeType,
@@ -59,7 +59,7 @@ function logEdgeError(graph, sourceId, targetId, edgeType) {
             targetId,
             '`.'
         ].join('');
-    } else if (!graph.getNodeById(sourceId)) {
+    } else if (!graph.nodeExists(sourceId)) {
         message = [
             'Cannot create `',
             edgeType,
@@ -69,7 +69,7 @@ function logEdgeError(graph, sourceId, targetId, edgeType) {
             targetId,
             '`.'
         ].join('');
-    } else if (!graph.getNodeById(targetId)) {
+    } else if (!graph.nodeExists(targetId)) {
         message = [
             'Cannot create `',
             edgeType,

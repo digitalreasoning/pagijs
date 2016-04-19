@@ -1,3 +1,5 @@
+'use strict';
+
 var Node = require('./node');
 var Edge = require('./edge');
 var GraphImpl = require('graphlib').Graph;
@@ -72,6 +74,14 @@ Graph.prototype.getNodeTypesAsSpanContainer = function() {
 };
 
 // Node manipulation functions
+Graph.prototype.getNodeIds = function() {
+    return this._graphImpl.nodes();
+};
+Graph.prototype.getNodes = function() {
+    return this.getNodeIds().map(function(nodeId) {
+        return this.getNodeById(nodeId);
+    }, this);
+};
 Graph.prototype.nodeExists = function(nodeId) { return this._graphImpl.hasNode(nodeId); };
 Graph.prototype.getNodeById = function(nodeId) { return this._graphImpl.node(nodeId); };
 Graph.prototype.getNodeTypes = function() { return Object.keys(this._nodeTypes); };
@@ -81,10 +91,13 @@ Graph.prototype.getNodesByType = function(nodeType) {
     }, this);
 };
 Graph.prototype.getNodeIds = function() {
-    // control nodes have non-int ids, filter them out
-    return this._graphImpl.nodes().filter(function(nodeId) {
-        return !isNaN(parseInt(nodeId));
-    });
+    // filter out ids for control nodes
+    return this._getAllNodeIds().filter(function(nodeId) {
+        return this.getNodeById(nodeId) !== CONTROL_NODE;
+    }, this);
+};
+Graph.prototype._getAllNodeIds = function() {
+    return this._graphImpl.nodes();
 };
 Graph.prototype.getNodes = function() {
     return this.getNodeIds().map(function(nodeId) {
@@ -132,18 +145,9 @@ Graph.prototype.removeNode = function(node) {
 Graph.prototype.edgeExists = function(sourceId, targetId, edgeType) {
     return this._graphImpl.hasEdge(sourceId, targetId, edgeType);
 };
-Graph.prototype.addEdge = function(sourceId, targetId, edgeType, targetType) {
+Graph.prototype.addEdge = function(sourceId, targetId, edgeType, toType) {
     if (!this.nodeExists(sourceId) || !this.nodeExists(targetId)) {
-        return utils.logEdgeError(this, sourceId, targetId, edgeType);
-    }
-    targetType = targetType || this.getNodeById(targetId).getType();
-    var edge = new Edge(sourceId, targetId, targetType, edgeType);
-
-    this._graphImpl.setEdge(sourceId, targetId, edge, edgeType);
-}
-Graph.prototype.setEdge = function(sourceId, targetId, edgeType, toType) {
-    if (!this.hasNode(sourceId) || !this.hasNode(targetId)) {
-        return logEdgeTargetError(this, sourceId, targetId, edgeType);
+        return utils.logEdgeTargetError(this, sourceId, targetId, edgeType);
     }
 
     toType = toType || this.getNodeById(targetId).getType();
@@ -151,9 +155,9 @@ Graph.prototype.setEdge = function(sourceId, targetId, edgeType, toType) {
 
     this._graphImpl.setEdge(sourceId, targetId, newEdge, edgeType);
 };
-Graph.prototype.setEdges = function(edges) {
+Graph.prototype.addEdges = function(edges) {
     edges.forEach(function(edge) {
-        this.setEdge(edge.sourceId, edge.targetId, edge.type, edge.toType);
+        this.addEdge(edge.sourceId, edge.targetId, edge.type, edge.toType);
     }, this);
 };
 Graph.prototype.getEdge = function(sourceId, targetId, edgeType) {
@@ -178,27 +182,10 @@ Graph.prototype.outEdges = function(sourceId, targetId) {
 Graph.prototype.hasEdge = function(sourceId, targetId, type) {
     return this._graphImpl.hasEdge(sourceId, targetId, type);
 };
-Graph.prototype.hasNode = function(nodeId) { return this._graphImpl.hasNode(nodeId); };
-Graph.prototype.getNodeById = function(nodeId) { return this._graphImpl.node(nodeId); };
-Graph.prototype.getNodeTypes = function() { return Object.keys(this._nodeTypes); };
-Graph.prototype.getNodesByType = function(nodeType) {
-    if (this._nodeTypes[nodeType] === undefined) { return []; }
-    return this._nodeTypes[nodeType].map(function(node) {
-        return node;
-    });
-};
-Graph.prototype.getNodeIds = function() {
-    return this._graphImpl.nodes();
-};
-Graph.prototype.getNodes = function() {
-    return this.getNodeIds().map(function(nodeId) {
-        return this.getNodeById(nodeId);
-    }, this);
-};
 
 // Manipulation functions
 Graph.prototype.createNode = function(id, type) {
-    id = id || this._generateNodeId;
+    id = id || this._generateNodeId();
     if (type === undefined || type === null) { throw Error('type is a required param for `createNode`'); }
     var newNode = new Node(id, this, type);
     this.addNode(newNode, false);

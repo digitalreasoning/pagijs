@@ -70,7 +70,7 @@ Node.prototype.addEdge = function(targetId, targetType, edgeType, connectEdges) 
     // console.log("ADD EDGE for nodeId: " + this.getId() + ", targetId: " + targetId + ", targetType: " + targetType + ", edgeType: " + edgeType + ".");
     connectEdges = (connectEdges === undefined) ? true : connectEdges;
 
-    this._graph.setEdge(this.getId(), targetId, edgeType, targetType);
+    this._graph.addEdge(this.getId(), targetId, edgeType, targetType);
 
     if (connectEdges) { this.connectEdges(); }
 };

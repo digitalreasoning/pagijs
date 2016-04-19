@@ -17,18 +17,18 @@ describe('Graph manipulation for `mary` stream', function() {
 
     describe('graph functions for manipulation', function() {
         it('can create new nodes', function() {
-            var node = graph.createNode();
+            var node = graph.createNode(null, 'TEST NODE');
             assert(node instanceof Node);
         });
     });
     describe('adding a node to the graph', function() {
         var node;
-        beforeEach(function() { node = graph.createNode(); });
+        beforeEach(function() { node = graph.createNode(null, 'TEST NODE'); });
 
         it('node must contain a type', function() {
             assert.throws(function() {
-                graph.addNode(node);
-            }, /must have a TYPE/);
+                graph.createNode();
+            }, /type is a required param/);
         });
         it('adding a node with the same id as another will error', function() {
             node.setId('1');
@@ -39,14 +39,13 @@ describe('Graph manipulation for `mary` stream', function() {
         });
         it('node without an id will get a generated id', function() {
             node.setType('TOK');
-            graph.addNode(node);
             // IDs should increment consecutively.
             assert.equal(node.getId(), (parseInt(graph._generateNodeId()) - 1).toString());
         });
         it('node will be added to the graph', function() {
             var preAddTotalCount = graph.getNodes().length;
             var preAddTypeCount = graph.getNodesByType('TOK').length;
-            node.setType('TOK');
+            node = new Node('900000', graph, 'TOK');
             graph.addNode(node);
             assert.equal(node, graph.getNodeById(node.getId()));
             assert.equal(preAddTotalCount, graph.getNodes().length - 1);
@@ -56,7 +55,6 @@ describe('Graph manipulation for `mary` stream', function() {
             it('adding a first node', function() {
                 node.setType('TOK');
                 node.addEdge('24', 'TOK', 'next');
-                graph.addNode(node);
                 assert.equal(node.next(), graph.getNodeById('24'));
             });
             it('adding a middle node', function() {
@@ -80,9 +78,7 @@ describe('Graph manipulation for `mary` stream', function() {
     describe('adding an edge to a node', function() {
         var node;
         beforeEach(function() {
-            node = graph.createNode();
-            node.setType('TOK');
-            graph.addNode(node);
+            node = graph.createNode(null, 'TOK');
         });
 
         it('creates the edge', function() {

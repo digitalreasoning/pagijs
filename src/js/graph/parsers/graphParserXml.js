@@ -64,11 +64,8 @@ GraphParserXml.prototype.parse = function(readableStream) {
                     }
                     break;
                 case 'node':
-                    node = new Node();
                     try {
-                        node.setId(tag.attributes.id.value);
-                        node.setType(tag.attributes.type.value);
-                        graph.addNode(node, false);
+                        node = graph.createNode(tag.attributes.id.value, tag.attributes.type.value);
                     } catch (err) {
                         reject(new Error("Failed to parse node `id` and `type`. [" + err + "]"));
                     }
@@ -173,7 +170,7 @@ GraphParserXml.prototype.parse = function(readableStream) {
             }
         });
         streamParser.on("end", function() {
-            graph.setEdges(edges);
+            graph.addEdges(edges);
             graph.connectEdges();
             resolve(graph);
         });
