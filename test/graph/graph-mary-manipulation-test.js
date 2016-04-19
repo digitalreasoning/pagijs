@@ -134,5 +134,11 @@ describe('Graph manipulation for `mary` stream', function() {
             assert.equal(node.getFirstEdgeByType('next'), undefined);
             assert.equal(node.hasNext(), false);
         });
+        it('should return undefined if first or last edge is removed', function() {
+            var sbNode = graph.getNodeById('71');
+            sbNode.removeEdges();
+            assert(sbNode.getFirst() === undefined);
+            assert(sbNode.getLast() === undefined);
+        });
     });
 });
