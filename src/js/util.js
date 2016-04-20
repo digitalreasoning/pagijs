@@ -1,27 +1,27 @@
 function StringBuilder() {
 	var strings = [];
 
+    var defined = function (el) {
+        return el !== null && typeof el !== 'undefined';
+    };
+
+    var getType = function (instance) {
+        if (!defined(instance.constructor)) {
+            throw Error('Unexpected object type');
+        }
+        var type = String(instance.constructor).match(/function\s+(\w+)/);
+
+        return defined(type) ? type[1] : 'undefined';
+    };
+
 	var verify = function (string) {
 		if (!defined(string)) {
 			return '';
 		}
-		if (getType(string) != getType('')) {
+		if (getType(string) !== getType('')) {
 			return String(string);
 		}
 		return string;
-	};
-
-	var defined = function (el) {
-		return el !== null && typeof el !== 'undefined';
-	};
-
-	var getType = function (instance) {
-		if (!defined(instance.constructor)) {
-			throw Error('Unexpected object type');
-		}
-		var type = String(instance.constructor).match(/function\s+(\w+)/);
-
-		return defined(type) ? type[1] : 'undefined';
 	};
 
 	this.append = function (string) {
@@ -48,35 +48,37 @@ function deepClone(o) {
 
 function logEdgeError(graph, sourceId, targetId, edgeType) {
     var message;
-
+    function forceString(input) {
+        return '' + input;
+    }
     if (!graph.nodeExists(sourceId) && !graph.nodeExists(targetId)) {
         message = [
             'Cannot create `',
-            edgeType,
+            forceString(edgeType),
             '` edge between non-existent node ids `',
-            sourceId,
+            forceString(sourceId),
             '` and `',
-            targetId,
+            forceString(targetId),
             '`.'
         ].join('');
     } else if (!graph.nodeExists(sourceId)) {
         message = [
             'Cannot create `',
-            edgeType,
+            forceString(edgeType),
             '` edge from non-existent node id `',
-            sourceId,
+            forceString(sourceId),
             '` to node id `',
-            targetId,
+            forceString(targetId),
             '`.'
         ].join('');
     } else if (!graph.nodeExists(targetId)) {
         message = [
             'Cannot create `',
-            edgeType,
+            forceString(edgeType),
             '` edge from node id `',
-            sourceId,
+            forceString(sourceId),
             '` to non-existent node id `',
-            targetId,
+            forceString(targetId),
             '`.'
         ].join('');
     }

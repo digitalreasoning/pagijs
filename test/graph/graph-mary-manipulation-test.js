@@ -72,9 +72,6 @@ describe('Graph manipulation for `mary` stream', function() {
                 assert.equal(node.previous(), graph.getNodeById('24'));
                 assert.equal(node.next(), graph.getNodeById('83'));
             });
-            it('adding a last node', function() {
-                // Not sure this is possible.
-            });
             it('has access to it\'s parents', function() {
                 node.setType('TOK');
                 node.addEdge('83', 'TOK', 'next');
