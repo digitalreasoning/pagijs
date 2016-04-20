@@ -166,10 +166,10 @@ Graph.prototype.getEdge = function(sourceId, targetId, edgeType) {
 Graph.prototype.removeEdge = function(sourceId, targetId, edgeType) {
     this._graphImpl.removeEdge(sourceId, targetId, edgeType);
 };
-Graph.prototype.connectEdges = function() {
+Graph.prototype.linkNodes = function() {
     // console.log("Graph.connectEdges ------------------------");
     this.getNodes().forEach(function(node) {
-        node.connectEdges();
+        node.linkInGraph();
     });
     // console.log("Graph.connectEdges ------------------------");
 };
@@ -179,14 +179,15 @@ Graph.prototype.inEdges = function(sourceId, targetId) {
 Graph.prototype.outEdges = function(sourceId, targetId) {
     return this._graphImpl.outEdges(sourceId, targetId);
 };
-Graph.prototype.hasEdge = function(sourceId, targetId, type) {
+Graph.prototype.edgeExists = function(sourceId, targetId, type) {
     return this._graphImpl.hasEdge(sourceId, targetId, type);
 };
 
 // Manipulation functions
-Graph.prototype.createNode = function(id, type) {
-    id = id || this._generateNodeId();
+Graph.prototype.createNode = function(type, id) {
     if (type === undefined || type === null) { throw Error('type is a required param for `createNode`'); }
+    id = id || this._generateNodeId();
+
     var newNode = new Node(id, this, type);
     this.addNode(newNode, false);
     return this.getNodeById(id);

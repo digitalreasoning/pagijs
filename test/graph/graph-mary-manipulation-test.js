@@ -8,22 +8,29 @@ var maryStream = testStreams.fullList.filter(function(stream) {
 
 describe('Graph manipulation for `mary` stream', function() {
     var graph;
-    beforeEach(function(done) {
+    function createGraph(done) {
         Pagi.parse(maryStream.getXmlStream()).then(function(aGraph) {
             graph = aGraph;
             done();
         });
-    });
+    }
 
     describe('graph functions for manipulation', function() {
+        beforeEach(createGraph);
+
         it('can create new nodes', function() {
-            var node = graph.createNode(null, 'TEST NODE');
+            var node = graph.createNode('TEST NODE');
             assert(node instanceof Node);
+            assert.equal(node.getType(), 'TEST NODE');
+            assert.ok(node.getId());
+            assert.strictEqual(node._graph, graph);
         });
     });
+
     describe('adding a node to the graph', function() {
         var node;
-        beforeEach(function() { node = graph.createNode(null, 'TEST NODE'); });
+        beforeEach(createGraph);
+        beforeEach(function() { node = graph.createNode('TEST NODE'); });
 
         it('node must contain a type', function() {
             assert.throws(function() {
@@ -51,16 +58,17 @@ describe('Graph manipulation for `mary` stream', function() {
             assert.equal(preAddTotalCount, graph.getNodes().length - 1);
             assert.equal(preAddTypeCount, graph.getNodesByType(node.getType()).length - 1);
         });
-        describe('sequence trait', function() {
+        describe.only('sequence trait', function() {
+            beforeEach(createGraph);
+            beforeEach(function() { node = graph.createNode('TOK'); });
+
             it('adding a first node', function() {
-                node.setType('TOK');
-                node.addEdge('24', 'TOK', 'next');
+                node.addEdge('24', 'next');
                 assert.equal(node.next(), graph.getNodeById('24'));
+                assert.equal(node.previous(), undefined);
             });
             it('adding a middle node', function() {
-                node.setType('TOK');
                 node.addEdge('83', 'TOK', 'next');
-                graph.addNode(node);
                 assert.equal(node.previous(), graph.getNodeById('24'));
                 assert.equal(node.next(), graph.getNodeById('83'));
             });
@@ -77,12 +85,13 @@ describe('Graph manipulation for `mary` stream', function() {
     });
     describe('adding an edge to a node', function() {
         var node;
+        beforeEach(createGraph);
         beforeEach(function() {
-            node = graph.createNode(null, 'TOK');
+            node = graph.createNode('TOK');
         });
 
         it('creates the edge', function() {
-            node.addEdge('2', 'TOK', 'arbitrary-edge');
+            node.addEdge('2', 'arbitrary-edge', 'TOK');
             var edge = node.getFirstEdgeByType('arbitrary-edge');
             assert.equal(edge.getTargetId(), '2');
             assert.equal(edge.getTargetType(), 'TOK');
@@ -91,6 +100,7 @@ describe('Graph manipulation for `mary` stream', function() {
     });
     describe('removing a node from a graph', function() {
         var node, prevNode, nextNode, nodeTotalCnt, nodeTypeCnt;
+        beforeEach(createGraph);
         beforeEach(function() {
             node = graph.getNodeById('2');
             prevNode = node.previous();
@@ -120,6 +130,7 @@ describe('Graph manipulation for `mary` stream', function() {
     });
     describe('removing an edge from a node', function() {
         var node;
+        beforeEach(createGraph);
         beforeEach(function() {
             node = graph.getNodeById('2');
             var nextEdge = node.getFirstEdgeByType('next');

@@ -65,7 +65,7 @@ GraphParserXml.prototype.parse = function(readableStream) {
                     break;
                 case 'node':
                     try {
-                        node = graph.createNode(tag.attributes.id.value, tag.attributes.type.value);
+                        node = graph.createNode(tag.attributes.type.value, tag.attributes.id.value);
                     } catch (err) {
                         reject(new Error("Failed to parse node `id` and `type`. [" + err + "]"));
                     }
@@ -171,7 +171,7 @@ GraphParserXml.prototype.parse = function(readableStream) {
         });
         streamParser.on("end", function() {
             graph.addEdges(edges);
-            graph.connectEdges();
+            graph.linkNodes();
             resolve(graph);
         });
         streamParser.on("error", function(err) {
