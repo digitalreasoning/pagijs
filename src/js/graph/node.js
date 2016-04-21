@@ -156,7 +156,8 @@ Node.prototype._connectEdgesSequence = function() {
         self.next().previous() !== self
     ) {
         var prevNode = self.next().previous();
-        prevNode.removeEdge(prevNode.getFirstEdgeByType('next'));
+        var currentNextEdge = prevNode.getFirstEdgeByType('next');
+        if (currentNextEdge) { prevNode.removeEdge(currentNextEdge); }
         prevNode.addEdge(self.getId(), self.getType(), 'next');
         // Next node is already added via the generic edge loop above.
         // Set parent edges based on this node's neighbors
@@ -212,7 +213,8 @@ Node.prototype._removeEdgesSequence = function() {
         var prevNode = this.previous();
         var nextNode = this.next();
         this.removeEdge(this.getFirstEdgeByType('next'));
-        prevNode.removeEdge(prevNode.getFirstEdgeByType('next'));
+        var oldNextEdge = prevNode.getFirstEdgeByType('next');
+        if (oldNextEdge) { prevNode.removeEdge(oldNextEdge); }
         prevNode.addEdge(nextNode.getId(), nextNode.getType(), 'next');
         // Parent edges will be broken by removing the node from graphlib.
     }
@@ -287,9 +289,8 @@ Node.prototype.hasNext = function() {
 Node.prototype.hasPrevious = function() {
     if (!this.hasTraitSequence()) { return false; }
     // Special case, there will not be an explicit `previous` edge.
-    // This library assumes a sequence node will only ever have one incoming `next` edge.
     var previousImplEdges = this._getEdgesImplByLabels('in', ['next']);
-    return previousImplEdges.length === 1;
+    return previousImplEdges.length > 0;
 };
 Node.prototype.next = function() {
     if (!this.hasTraitSequence()) { throw Error("Calling `next` on a Node that does not have the `sequence` trait."); }
