@@ -112,13 +112,21 @@ function connectNodesInSequence(node) {
     // A -> B
     // A C -> B
     // A -> C -> B
-    if (node.hasNext() && !node.hasPrevious() &&
+    if (node._id == '9000000') {
+        console.log('hasNext', node.hasNext());
+        console.log('!hasPrevious()', !node.hasPrevious());
+        console.log('.next().hasPrevious()', node.next().hasPrevious());
+        console.log('.next().previous() !== node', node.next().previous() !== node);
+    }
+    if (node.hasNext() &&
+        !node.hasPrevious() &&
         node.next().hasPrevious() &&
         node.next().previous() !== node
     ) {
         var prevNode = node.next().previous();
+        console.log('I FIRED', prevNode);
         prevNode.removeEdge(prevNode.getFirstEdgeByType('next'));
-        prevNode.addEdge(node.getId(), 'next', node.getType());
+        prevNode.addEdge(node.getId(), 'next');
         // Next node is already added via the generic edge loop above.
         // Set parent edges based on this node's neighbors
         var prevInEdgeImpls = prevNode._getEdgesImplByLabels('in', ['first', 'last', CHILD_EDGE_TYPE]);
@@ -180,7 +188,7 @@ Node.prototype.linkInGraph = function() {
     if (!this._graph) { return console.warn('Node is not part of a graph, cannot run linkNodes'); }
     // must connect sequences before trying to set parent edges
     connectNodesInSequence(this);
-    connectSpanContainerParents(this);
+    // connectSpanContainerParents(this);
 };
 
 Node.prototype.removeEdge = function(edge) {
@@ -290,7 +298,7 @@ Node.prototype.hasPrevious = function() {
     // Special case, there will not be an explicit `previous` edge.
     // This library assumes a sequence node will only ever have one incoming `next` edge.
     var previousImplEdges = this._getEdgesImplByLabels('in', ['next']);
-    return previousImplEdges.length === 1;
+    return previousImplEdges.length > 0;
 };
 Node.prototype.next = function() {
     if (!this.hasTraitSequence()) { throw Error("Calling `next` on a Node that does not have the `sequence` trait."); }
@@ -309,8 +317,7 @@ Node.prototype.previous = function() {
 };
 Node.prototype._getEdgesImplByLabels = function(direction, labels)  {
     return this._graph[direction + 'Edges'](this.getId()).filter(function(edgeImpl) {
-        console.log(edgeImpl);
-        return labels.indexOf(this.edgeExists(edgeImpl.v, edgeImpl.w, edgeImpl.name)) !== -1;
+        return labels.indexOf(edgeImpl.name) !== -1;
     }, this._graph);
 };
 // Breadth-first search for parents of a given node type.
