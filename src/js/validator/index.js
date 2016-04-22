@@ -6,13 +6,14 @@ var validationError = require('./validation-error');
 function validateNode(id, graph, schema) {
   var errors = [];
   var node = graph.getNodeById(id);
-  var nodeSpec = schema.nodeTypeMap[node.getType()];
-  var customError = validationError.createTemplate(id, node.getType());
+  var nodeType = node ? node.getType() : undefined;
+  var nodeSpec = schema.nodeTypeMap[nodeType];
+  var customError = validationError.createTemplate(id, nodeType);
 
   if (node && nodeSpec) {
     errors = nodeValidator(node, graph, nodeSpec, customError);
   } else if (!node) {
-    errors.push(customError(id, ['Node with id', id, 'does not exist'].join(' ')));
+    errors.push(customError(['Node with id', id, 'does not exist'].join(' ')));
   } else {
     errors.push(customError([node.getType(), 'is not defined in', schema.id].join(' ')));
   }

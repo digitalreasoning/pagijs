@@ -58,7 +58,7 @@ describe('Graph manipulation for `mary` stream', function() {
             assert.equal(preAddTotalCount, graph.getNodes().length - 1);
             assert.equal(preAddTypeCount, graph.getNodesByType(node.getType()).length - 1);
         });
-        describe.only('sequence trait', function() {
+        describe('sequence trait', function() {
             beforeEach(createGraph);
             beforeEach(function() { node = graph.createNode('TOK', '9000000'); });
 
@@ -77,7 +77,6 @@ describe('Graph manipulation for `mary` stream', function() {
             });
             it('has access to it\'s parents', function() {
                 node.addEdge('83', 'next');
-                graph.addNode(node);
                 assert.equal(node.getFirstParentOfType('SB'), graph.getNodeById('68'));
             });
         });
@@ -92,9 +91,10 @@ describe('Graph manipulation for `mary` stream', function() {
         it('creates the edge', function() {
             node.addEdge('2', 'arbitrary-edge', 'TOK');
             var edge = node.getFirstEdgeByType('arbitrary-edge');
+            assert.equal(node.getId(), edge.getSourceId());
             assert.equal(edge.getTargetId(), '2');
             assert.equal(edge.getTargetType(), 'TOK');
-            assert.equal(edge.getEdgeType(), 'arbitrary-edge');
+            assert.equal(edge.getType(), 'arbitrary-edge');
         });
     });
     describe('removing a node from a graph', function() {

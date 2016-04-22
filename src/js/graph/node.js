@@ -79,11 +79,11 @@ Node.prototype.addEdge = function(targetId, edgeType, targetType, linkInGraph) {
 Node.prototype.getEdges = function() {
     return this._graph.outEdges(this.getId()).map(function(edge) {
         return this._graph.getEdge(edge.v, edge.w, edge.name);
-    }, this);
+    }, this).filter(function(edge) { return edge.getType() !== CHILD_EDGE_TYPE; });
 };
 Node.prototype.getEdgesByType = function(edgeType) {
     return this.getEdges().filter(function(edge) {
-        return edge.getEdgeType() === edgeType;
+        return edge.getType() === edgeType;
     });
 };
 Node.prototype.getFirstEdgeByType = function(edgeType) {
@@ -112,19 +112,12 @@ function connectNodesInSequence(node) {
     // A -> B
     // A C -> B
     // A -> C -> B
-    if (node._id == '9000000') {
-        console.log('hasNext', node.hasNext());
-        console.log('!hasPrevious()', !node.hasPrevious());
-        console.log('.next().hasPrevious()', node.next().hasPrevious());
-        console.log('.next().previous() !== node', node.next().previous() !== node);
-    }
     if (node.hasNext() &&
         !node.hasPrevious() &&
         node.next().hasPrevious() &&
-        node.next().previous() !== node
+        node.next().previous([node.getId()]) !== undefined
     ) {
-        var prevNode = node.next().previous();
-        console.log('I FIRED', prevNode);
+        var prevNode = node.next().previous([node.getId()]);
         prevNode.removeEdge(prevNode.getFirstEdgeByType('next'));
         prevNode.addEdge(node.getId(), 'next');
         // Next node is already added via the generic edge loop above.
@@ -188,7 +181,7 @@ Node.prototype.linkInGraph = function() {
     if (!this._graph) { return console.warn('Node is not part of a graph, cannot run linkNodes'); }
     // must connect sequences before trying to set parent edges
     connectNodesInSequence(this);
-    // connectSpanContainerParents(this);
+    connectSpanContainerParents(this);
 };
 
 Node.prototype.removeEdge = function(edge) {
@@ -199,7 +192,7 @@ Node.prototype.removeEdge = function(edge) {
         throw Error('Node id `' + this.getId() + '` is not the source of edge, cannot remove');
     }
 
-    // console.log("REMOVE EDGE nodeId: " + this.getId() + ", targetId: " + aEdge.getTargetId() + ", targetType: " + aEdge.getTargetType() + ", edgeType: " + aEdge.getEdgeType() + ".");
+    // console.log("REMOVE EDGE nodeId: " + this.getId() + ", targetId: " + aEdge.getTargetId() + ", targetType: " + aEdge.getTargetType() + ", edgeType: " + aEdge.getType() + ".");
     this._graph.removeEdge(this.getId(), edge.getTargetId(), edge.getType());
 };
 Node.prototype.removeEdges = function() {
@@ -223,7 +216,7 @@ Node.prototype._removeEdgesSequence = function() {
         this.removeEdge(this.getFirstEdgeByType('next'));
         var oldNextEdge = prevNode.getFirstEdgeByType('next');
         if (oldNextEdge) { prevNode.removeEdge(oldNextEdge); }
-        prevNode.addEdge(nextNode.getId(), nextNode.getType(), 'next');
+        prevNode.addEdge(nextNode.getId(), 'next');
         // Parent edges will be broken by removing the node from graphlib.
     }
     // Sequence (last)
@@ -307,12 +300,20 @@ Node.prototype.next = function() {
     if (!nextEdge) { return undefined; }
     return this._graph.getNodeById(nextEdge.getTargetId());
 };
-Node.prototype.previous = function() {
+Node.prototype.previous = function(ids) {
     if (!this.hasTraitSequence()) { throw Error("Calling `previous` on a Node that does not have the `sequence` trait."); }
     // Special case, there will not be an explicit `previous` edge.
-    // This library assumes a sequence node will only ever have one incoming `next` edge.
+    // A sequence node should only have one incoming `next` edge, but to support broken states
+    // you can optionally pass an ids filter that will remove nodes from options.
     var previousImplEdges = this._getEdgesImplByLabels('in', ['next']);
-    if (previousImplEdges.length !== 1) { return undefined; }
+
+    if (ids) {
+        previousImplEdges = previousImplEdges.filter(function(edge) {
+            return ids.indexOf(edge.v) === -1;
+        });
+    }
+
+    if (previousImplEdges.length < 1) { return undefined; }
     return this._graph.getNodeById(previousImplEdges[0].v);
 };
 Node.prototype._getEdgesImplByLabels = function(direction, labels)  {

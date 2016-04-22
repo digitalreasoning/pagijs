@@ -3,6 +3,7 @@ var sax = require("sax");
 // var print = require("util").print;
 var Graph = require('../graph');
 var Node = require('../node');
+var Edge = require('../edge');
 
 function GraphParserXml() { }
 // @desc Take a stream and returns a promise. Once resolved the promise will hand off a Graph instance.
@@ -131,13 +132,7 @@ GraphParserXml.prototype.parse = function(readableStream) {
                     if (node) {
                         try {
                             var eAttrs = tag.attributes;
-                            edges.push({
-                                sourceId: node.getId(),
-                                targetId: eAttrs.to.value,
-                                type: eAttrs.type.value,
-                                toType: eAttrs.toType.value
-                            });
-                            // node.addEdge(eAttrs.to.value, eAttrs.toType.value, eAttrs.type.value, false);
+                            edges.push(new Edge(node.getId(), eAttrs.to.value, eAttrs.toType.value, eAttrs.type.value));
                         } catch (err) {
                             reject(new Error("Failed to parse edge for node `" + node.id + "`. [" + err + "]"));
                         }
