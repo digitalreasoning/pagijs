@@ -221,8 +221,9 @@ Node.prototype._removeEdgesSequence = function() {
         var prevNode = this.previous();
         var nextNode = this.next();
         this.removeEdge(this.getFirstEdgeByType('next'));
-        prevNode.removeEdge(prevNode.getFirstEdgeByType('next'));
-        prevNode.addEdge(nextNode.getId(), 'next', nextNode.getType());
+        var oldNextEdge = prevNode.getFirstEdgeByType('next');
+        if (oldNextEdge) { prevNode.removeEdge(oldNextEdge); }
+        prevNode.addEdge(nextNode.getId(), nextNode.getType(), 'next');
         // Parent edges will be broken by removing the node from graphlib.
     }
     // Sequence (last)
@@ -296,7 +297,6 @@ Node.prototype.hasNext = function() {
 Node.prototype.hasPrevious = function() {
     if (!this.hasTraitSequence()) { return false; }
     // Special case, there will not be an explicit `previous` edge.
-    // This library assumes a sequence node will only ever have one incoming `next` edge.
     var previousImplEdges = this._getEdgesImplByLabels('in', ['next']);
     return previousImplEdges.length > 0;
 };
