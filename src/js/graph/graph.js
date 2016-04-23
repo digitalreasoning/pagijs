@@ -130,7 +130,7 @@ Graph.prototype.removeNode = function(node) {
 Graph.prototype.edgeExists = function(sourceId, targetId, edgeType) {
     return this._graphImpl.hasEdge(sourceId, targetId, edgeType);
 };
-Graph.prototype.addEdge = function(sourceId, targetId, edgeType, toType) {
+Graph.prototype._addEdge = function(sourceId, targetId, edgeType, toType) {
     if (!this.nodeExists(sourceId) || !this.nodeExists(targetId)) {
         return utils.logEdgeTargetError(this, sourceId, targetId, edgeType);
     }
@@ -140,23 +140,23 @@ Graph.prototype.addEdge = function(sourceId, targetId, edgeType, toType) {
 
     this._graphImpl.setEdge(sourceId, targetId, newEdge, edgeType);
 };
-Graph.prototype.addEdges = function(edges) {
+Graph.prototype._addEdges = function(edges) {
     edges.forEach(function(edge) {
-        this.addEdge(edge.getSourceId(), edge.getTargetId(), edge.getType(), edge.getTargetType());
+        this._addEdge(edge.getSourceId(), edge.getTargetId(), edge.getType(), edge.getTargetType());
     }, this);
 };
 Graph.prototype.getEdge = function(sourceId, targetId, edgeType) {
     return this._graphImpl.edge(sourceId, targetId, edgeType);
 };
-Graph.prototype.removeEdge = function(sourceId, targetId, edgeType) {
+Graph.prototype._removeEdge = function(sourceId, targetId, edgeType) {
     this._graphImpl.removeEdge(sourceId, targetId, edgeType);
 };
 Graph.prototype.linkNodes = function() {
-    // console.log("Graph.connectEdges ------------------------");
+    // console.log("Graph.linkNodes ------------------------");
     this.getNodes().forEach(function(node) {
         node.linkInGraph();
     });
-    // console.log("Graph.connectEdges ------------------------");
+    // console.log("Graph.linkNodes ------------------------");
 };
 Graph.prototype.inEdges = function(sourceId, targetId) {
     return this._graphImpl.inEdges(sourceId, targetId);

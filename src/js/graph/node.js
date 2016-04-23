@@ -72,7 +72,7 @@ Node.prototype.addEdge = function(targetId, edgeType, targetType, linkInGraph) {
     // console.log("ADD EDGE for nodeId: " + this.getId() + ", targetId: " + targetId + ", targetType: " + targetType + ", edgeType: " + edgeType + ".");
     linkInGraph = (linkInGraph === undefined) ? true : linkInGraph;
 
-    this._graph.addEdge(this.getId(), targetId, edgeType, targetType);
+    this._graph._addEdge(this.getId(), targetId, edgeType, targetType);
 
     if (linkInGraph) { this.linkInGraph(); }
 };
@@ -130,7 +130,7 @@ function connectNodesInSequence(node) {
                 if (prevInEdgeImpl.v === nextInEdgeImpl.v) {
                     var prevParentNode = node._graph.getNodeById(prevInEdgeImpl.v);
                     // console.log("LINK EDGE nodeId: " + prevParentNode.getId() + ", targetId: " + node.getId() + ", type: child.");
-                    node._graph.addEdge(prevParentNode.getId(), node.getId(), CHILD_EDGE_TYPE);
+                    node._graph._addEdge(prevParentNode.getId(), node.getId(), CHILD_EDGE_TYPE);
                 }
             });
         });
@@ -158,7 +158,7 @@ function connectSpanContainerParents(node) {
             // Don't create the edge if it already exists
             if (!graph.edgeExists(node.getId(), linkNode.getId(), CHILD_EDGE_TYPE)) {
                 // console.log("LINK EDGE nodeId: " + this.getId() + ", targetId: " + linkNode.getId() + ", type: child.");
-                graph.addEdge(node.getId(), linkNode.getId(), CHILD_EDGE_TYPE);
+                graph._addEdge(node.getId(), linkNode.getId(), CHILD_EDGE_TYPE);
             }
             if (linkNode === lastNode) {
                 // console.log("Node._connectEdgesSpanContainer: LinkNode === LastNode.");
@@ -193,7 +193,7 @@ Node.prototype.removeEdge = function(edge) {
     }
 
     // console.log("REMOVE EDGE nodeId: " + this.getId() + ", targetId: " + aEdge.getTargetId() + ", targetType: " + aEdge.getTargetType() + ", edgeType: " + aEdge.getType() + ".");
-    this._graph.removeEdge(this.getId(), edge.getTargetId(), edge.getType());
+    this._graph._removeEdge(this.getId(), edge.getTargetId(), edge.getType());
 };
 Node.prototype.removeEdges = function() {
     var self = this;
