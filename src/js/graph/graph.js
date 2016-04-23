@@ -4,7 +4,6 @@ var Node = require('./node');
 var Edge = require('./edge');
 var GraphImpl = require('graphlib').Graph;
 var utils = require('../util');
-var CONTROL_NODE = require('./constants').CONTROL_NODE;
 var deepClone = utils.deepClone;
 
 function Graph(id) {
@@ -19,8 +18,7 @@ function Graph(id) {
     this._nodeTypes = { };
     this._graphImpl = new GraphImpl({
         directed: true,
-        multigraph: true,
-        compound: true
+        multigraph: true
     });
 }
 
@@ -90,17 +88,6 @@ Graph.prototype.getNodesByType = function(nodeType) {
     return this._nodeTypes[nodeType].map(function(node) {
         return node;
     });
-};
-Graph.prototype.getNodeIds = function() {
-    return this._graphImpl.nodes();
-};
-Graph.prototype._getAllNodeIds = function() {
-    return this._graphImpl.nodes();
-};
-Graph.prototype.getNodes = function() {
-    return this.getNodeIds().map(function(nodeId) {
-        return this.getNodeById(nodeId);
-    }, this);
 };
 Graph.prototype.addNode = function(node, linkInGraph) {
     if (!(node instanceof Node)) {
