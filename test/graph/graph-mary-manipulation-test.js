@@ -58,28 +58,35 @@ describe('Graph manipulation for `mary` stream', function() {
             assert.equal(preAddTotalCount, graph.getNodes().length - 1);
             assert.equal(preAddTypeCount, graph.getNodesByType(node.getType()).length - 1);
         });
-        describe('sequence trait', function() {
-            beforeEach(createGraph);
-            beforeEach(function() { node = graph.createNode('TOK', '9000000'); });
+    });
+    describe('adding a node to the graph with a sequence trait', function() {
+        var node;
+        beforeEach(createGraph);
+        beforeEach(function() { node = graph.createNode('TOK', '9000000'); });
 
-            it('adding a first node', function() {
-                node.addEdge('24', 'next');
-                assert.equal(node.next(), graph.getNodeById('24'));
-                assert.equal(node.previous(), undefined);
-            });
-            it('adding a middle node', function() {
-                // console.log('24s next edge', graph.getNodeById('24').next()._id);
-                // console.log('83s prev edge', graph.getNodeById('83').previous()._id);
-                node.addEdge('83', 'next');
-                // console.log('Nodes next edge should be 83', node.next()._id);
-                assert.equal(node.previous(), graph.getNodeById('24'));
-                assert.equal(node.next(), graph.getNodeById('83'));
-            });
-            it('has access to it\'s parents', function() {
-                node.addEdge('83', 'next');
-                assert.equal(node.getFirstParentOfType('SB'), graph.getNodeById('68'));
-            });
+        it('adding a first node', function() {
+            node.addEdge('24', 'next');
+            assert.equal(node.next(), graph.getNodeById('24'));
+            assert.equal(node.previous(), undefined);
         });
+        it('adding a middle node', function() {
+            node.addEdge('83', 'next');
+
+            assert.equal(node.previous(), graph.getNodeById('24'));
+            assert.equal(node.next(), graph.getNodeById('83'));
+        });
+        it('adding a last node', function() {
+            var lastNodeInSequence = graph.getNodeById('78');
+            lastNodeInSequence.addEdge('9000000', 'next');
+
+            assert.equal(lastNodeInSequence.next(), node);
+            assert.equal(node.next(), undefined);
+        });
+        it('has access to it\'s parents', function() {
+            node.addEdge('83', 'next');
+            assert.equal(node.getFirstParentOfType('SB'), graph.getNodeById('68'));
+        });
+
     });
     describe('adding an edge to a node', function() {
         var node;
