@@ -42,7 +42,7 @@ GraphSerializerXml.prototype.serializeNode = function(node) {
         }
     });
     node.getEdges().forEach(function(edge) {
-        lines.push(TAB+TAB + '<edge toType="' + es(edge.getTargetType()) + '" to="' + es(edge.getTargetId()) + '" type="' + es(edge.getEdgeType()) + '"/>');
+        lines.push(TAB+TAB + '<edge toType="' + es(edge.getTargetType()) + '" to="' + es(edge.getTargetId()) + '" type="' + es(edge.getType()) + '"/>');
     });
     lines.push(TAB + '</node>');
     return lines.join("\n");

@@ -3,6 +3,7 @@ var sax = require("sax");
 // var print = require("util").print;
 var Graph = require('../graph');
 var Node = require('../node');
+var Edge = require('../edge');
 
 function GraphParserXml() { }
 // @desc Take a stream and returns a promise. Once resolved the promise will hand off a Graph instance.
@@ -21,6 +22,7 @@ GraphParserXml.prototype.parse = function(readableStream) {
             'bool': 'boolean'
         };
         var multiValData = null;
+        var edges = [];
 
         streamParser.on("opentag", function(tag) {
             currentTag = tag;
@@ -63,11 +65,8 @@ GraphParserXml.prototype.parse = function(readableStream) {
                     }
                     break;
                 case 'node':
-                    node = new Node();
                     try {
-                        node.setId(tag.attributes.id.value);
-                        node.setType(tag.attributes.type.value);
-                        graph.addNode(node, false);
+                        node = graph.createNode(tag.attributes.type.value, tag.attributes.id.value);
                     } catch (err) {
                         reject(new Error("Failed to parse node `id` and `type`. [" + err + "]"));
                     }
@@ -133,7 +132,7 @@ GraphParserXml.prototype.parse = function(readableStream) {
                     if (node) {
                         try {
                             var eAttrs = tag.attributes;
-                            node.addEdge(eAttrs.to.value, eAttrs.toType.value, eAttrs.type.value, false);
+                            edges.push(new Edge(node.getId(), eAttrs.to.value, eAttrs.toType.value, eAttrs.type.value));
                         } catch (err) {
                             reject(new Error("Failed to parse edge for node `" + node.id + "`. [" + err + "]"));
                         }
@@ -166,7 +165,8 @@ GraphParserXml.prototype.parse = function(readableStream) {
             }
         });
         streamParser.on("end", function() {
-            graph.connectEdges();
+            graph._addEdges(edges);
+            graph.linkNodes();
             resolve(graph);
         });
         streamParser.on("error", function(err) {

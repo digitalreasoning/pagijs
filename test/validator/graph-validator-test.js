@@ -51,6 +51,16 @@ describe('validator validateGraph', function() {
     assert(results.errors.length === 0);
   });
 
+  it('should validate node existence', function() {
+    marryGraph._graphImpl.setNode('900000', undefined);
+
+    var results = validator.validateGraph(marryGraph, marryschema);
+
+    assert.equal(results.isValid, false);
+    assert.equal(results.errors.length, 1);
+    assert.equal(results.errors[0].message, 'Node with id 900000 does not exist');
+  });
+
   it('should validate min arity', function() {
     var node = marryGraph.getNodeById('0');
     delete node._properties.start;
@@ -59,8 +69,8 @@ describe('validator validateGraph', function() {
     var results = validator.validateGraph(marryGraph, marryschema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 1);
-    assert(results.errors[0].message === 'start is a required property');
+    assert.equal(results.errors.length, 1);
+    assert.equal(results.errors[0].message, 'start is a required property');
   });
 
   it('should validate max arity', function() {
@@ -71,8 +81,8 @@ describe('validator validateGraph', function() {
     var results = validator.validateGraph(marryGraph, marryschema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 1);
-    assert(results.errors[0].message === 'Arity of start property is out of range. Arity min: 1 Arity max: 1 Arity Actual: 2');
+    assert.equal(results.errors.length, 1);
+    assert.equal(results.errors[0].message, 'Arity of start property is out of range. Arity min: 1 Arity max: 1 Arity Actual: 2');
   });
 
   it('should validate intProps', function() {
@@ -83,7 +93,7 @@ describe('validator validateGraph', function() {
     var results = validator.validateGraph(marryGraph, marryschema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 2);
+    assert.equal(results.errors.length, 2);
     assert.equal(results.errors[0].message, 'start must be an integer');
     assert.equal(results.errors[1].message, 'start must be within 0 and 2147483647');
   });
@@ -96,7 +106,7 @@ describe('validator validateGraph', function() {
     var results = validator.validateGraph(marryGraph, marryschema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 2);
+    assert.equal(results.errors.length, 2);
     assert.equal(results.errors[0].message, 'start must be an integer');
     assert.equal(results.errors[1].message, 'start must be within 0 and 2147483647');
   });
@@ -109,7 +119,7 @@ describe('validator validateGraph', function() {
     var results = validator.validateGraph(marryGraph, marryschema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 1);
+    assert.equal(results.errors.length, 1);
     assert.equal(results.errors[0].message, 'start must be an integer');
   });
 
@@ -121,7 +131,7 @@ describe('validator validateGraph', function() {
     var results = validator.validateGraph(marryGraph, marryschema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 2);
+    assert.equal(results.errors.length, 2);
     assert.equal(results.errors[0].message, 'pos must be a string');
     assert.equal(results.errors[1].message, '5 is not a valid value for property pos');
   });
@@ -134,7 +144,7 @@ describe('validator validateGraph', function() {
     var results = validator.validateGraph(testDoc2Graph, testDoc2Schema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 2);
+    assert.equal(results.errors.length, 2);
     assert.equal(results.errors[0].message, 'precision must be a float');
     assert.equal(results.errors[1].message, 'precision must be within 0 and 1');
   });
@@ -147,7 +157,7 @@ describe('validator validateGraph', function() {
     var results = validator.validateGraph(testDoc2Graph, testDoc2Schema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 1);
+    assert.equal(results.errors.length, 1);
     assert.equal(results.errors[0].message, 'enabled must be a boolean');
   });
 
@@ -159,29 +169,29 @@ describe('validator validateGraph', function() {
     var results = validator.validateGraph(marryGraph, marryschema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 1);
+    assert.equal(results.errors.length, 1);
     assert.equal(results.errors[0].message, 'member is a required edge');
   });
 
-  it('should validate target Edge existence', function() {
-    marryGraph._graphImpl.removeNode('8');
+  it('should validate Edge target existence', function() {
+    marryGraph._graphImpl.setNode('8', undefined);
 
     var results = validator.validateGraph(marryGraph, marryschema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 3);
+    assert.equal(results.errors.length, 4);
     assert.equal(results.errors[0].message, 'member edge points to non-existent target with id: 8');
   });
 
-  it('should validate target Edge type', function() {
+  it('should validate Edge target type', function() {
     var node = marryGraph.getNodeById('7');
-    node.addEdge('10', 'TOK', 'member');
+    node.addEdge('10', 'member', 'TOK');
     marryGraph._graphImpl.setNode('7', node);
 
     var results = validator.validateGraph(marryGraph, marryschema);
 
     assert.equal(results.isValid, false);
-    assert(results.errors.length === 1);
+    assert.equal(results.errors.length, 1);
     assert.equal(results.errors[0].message, 'COREF is an invalid target for edge type: member');
   });
 });
