@@ -132,7 +132,7 @@ Graph.prototype.edgeExists = function(sourceId, targetId, edgeType) {
 };
 Graph.prototype._addEdge = function(sourceId, targetId, edgeType, toType) {
     if (!this.nodeExists(sourceId) || !this.nodeExists(targetId)) {
-        return utils.logEdgeTargetError(this, sourceId, targetId, edgeType);
+        return utils.logEdgeError(this, sourceId, targetId, edgeType);
     }
 
     toType = toType || this.getNodeById(targetId).getType();
