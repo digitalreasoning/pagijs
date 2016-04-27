@@ -3,6 +3,7 @@
 var validationError = null;
 var validateArity = require('./validation-utils').validateArity;
 var isRequired = require('./validation-utils').isRequired;
+var nameUtil = require('./../name-util');
 
 function targetExists(id, graph) {
   return !!graph.getNodeById(id);
@@ -11,11 +12,11 @@ function targetExists(id, graph) {
 function validateTarget(edge, edgeSpec, graph) {
   var errors = [];
   var targetNode = graph.getNodeById(edge.getTargetId());
-  var invalidTarget = edgeSpec.targetNodeTypes.indexOf(targetNode.getType()) === -1;
+  var isInvalidTarget = edgeSpec.targetNodeTypes.indexOf(targetNode.getType()) === -1;
 
-  if (invalidTarget) {
+  if (isInvalidTarget) {
     errors.push(validationError([
-      targetNode.getType(),
+      nameUtil.getReadableName(targetNode.getType()),
       'is an invalid target for edge type:',
       edge.getType()
     ].join(' ')));

@@ -2,7 +2,7 @@ http://pagi.org/testSuite/extTokFull
 EXTENDS http://pagi.org/testSuite/extTok
 EXTENDS http://pagi.org/testSuite/extTokCoref
 
-NODETYPE COREF
+NODETYPE COREF Co-Reference
 PROP name 0 0 UNBOUNDED STRING
 EDGE member 1 UNBOUNDED 0 1 TOK
 

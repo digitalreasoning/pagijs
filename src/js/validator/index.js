@@ -2,6 +2,7 @@
 
 var nodeValidator = require('./validators/node');
 var validationError = require('./validation-error');
+var readableNameUtil = require('./name-util');
 
 function validateNode(id, graph, schema) {
   var errors = [];
@@ -9,6 +10,7 @@ function validateNode(id, graph, schema) {
   var nodeType = node ? node.getType() : undefined;
   var nodeSpec = schema.nodeTypeMap[nodeType];
   var customError = validationError.createTemplate(id, nodeType);
+  readableNameUtil.setNames(schema.nodeTypeMap);
 
   if (node && nodeSpec) {
     errors = nodeValidator(node, graph, nodeSpec, customError);
@@ -17,6 +19,8 @@ function validateNode(id, graph, schema) {
   } else {
     errors.push(customError([node.getType(), 'is not defined in', schema.id].join(' ')));
   }
+
+  readableNameUtil.unsetNames();
 
   var isValid = (errors.length === 0);
   return {

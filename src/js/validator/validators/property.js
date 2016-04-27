@@ -2,6 +2,7 @@
 
 var validateArity = require('./validation-utils').validateArity;
 var isRequired = require('./validation-utils').isRequired;
+var parseName = require('./../name-util').parseName;
 var validationError = null;
 
 function isOutOfRange(value, range) {
@@ -17,12 +18,12 @@ function validateIntProp(prop, propSpec) {
 
   prop.vals.forEach(function(val) {
     if (!isInteger(val)) {
-      errors.push(validationError([propSpec.name, 'must be an integer'].join(' ')));
+      errors.push(validationError([parseName(propSpec), 'must be an integer'].join(' ')));
     }
 
     if (isOutOfRange(val, propSpec.restrictions)) {
       errors.push(validationError([
-        propSpec.name,
+        parseName(propSpec),
         'must be within',
         propSpec.restrictions.minRange,
         'and',
@@ -39,12 +40,12 @@ function validateFloatProp(prop, propSpec) {
 
   prop.vals.forEach(function(val) {
     if (typeof val !== 'number') {
-      errors.push(validationError([propSpec.name, 'must be a float'].join(' ')));
+      errors.push(validationError([parseName(propSpec), 'must be a float'].join(' ')));
     }
 
     if (isOutOfRange(val, propSpec.restrictions)) {
       errors.push(validationError([
-        propSpec.name,
+        parseName(propSpec),
         'must be within',
         propSpec.restrictions.minRange,
         'and',
@@ -77,7 +78,7 @@ function validateStringProp(prop, propSpec) {
 
   prop.vals.forEach(function(val) {
     if (typeof val !== 'string') {
-      errors.push(validationError([propSpec.name, 'must be a string'].join(' ')));
+      errors.push(validationError([parseName(propSpec), 'must be a string'].join(' ')));
     }
   });
 
@@ -93,7 +94,7 @@ function validateBoolProp(prop, propSpec) {
 
   prop.vals.forEach(function(val) {
     if (typeof val !== 'boolean') {
-      errors.push(validationError([propSpec.name, 'must be a boolean'].join(' ')));
+      errors.push(validationError([parseName(propSpec), 'must be a boolean'].join(' ')));
     }
   });
 
@@ -131,7 +132,7 @@ module.exports = function validateProperties(node, nodeSpec, customErr) {
           throw new Error('Schema valueType ' + propSpec.valueType.name + ' not a valid type.');
       }
     } else if (isRequired(propSpec)) {
-      errors.push(validationError([propSpec.name, 'is a required property'].join(' ')));
+      errors.push(validationError([parseName(propSpec), 'is a required property'].join(' ')));
     }
 
   });
