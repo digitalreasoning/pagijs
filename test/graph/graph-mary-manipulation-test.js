@@ -72,7 +72,6 @@ describe('Graph manipulation for `mary` stream', function() {
         it('adding a middle node', function() {
             node.addEdge('83', 'next');
 
-            assert.equal(node.previous(), graph.getNodeById('24'));
             assert.equal(node.next(), graph.getNodeById('83'));
         });
         it('adding a last node', function() {
@@ -82,11 +81,6 @@ describe('Graph manipulation for `mary` stream', function() {
             assert.equal(lastNodeInSequence.next(), node);
             assert.equal(node.next(), undefined);
         });
-        it('has access to it\'s parents', function() {
-            node.addEdge('83', 'next');
-            assert.equal(node.getFirstParentOfType('SB'), graph.getNodeById('68'));
-        });
-
     });
     describe('adding an edge to a node', function() {
         var node;
