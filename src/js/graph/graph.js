@@ -89,7 +89,7 @@ Graph.prototype.getNodesByType = function(nodeType) {
         return node;
     });
 };
-Graph.prototype.addNode = function(node, linkInGraph) {
+Graph.prototype.addNode = function(node) {
     if (!(node instanceof Node)) {
         throw Error('Parameter must be an instance of Node when calling Graph.addNode.');
     }
@@ -103,14 +103,11 @@ Graph.prototype.addNode = function(node, linkInGraph) {
         node.setId(this._generateNodeId());
     }
     // console.log("ADD NODE id: " + node.getId() + ", type: " + node.getType() + ".");
-    linkInGraph = linkInGraph === undefined ? true : linkInGraph;
     this._graphImpl.setNode(node.getId(), node);
     node.setGraph(this);
     // Create node type buckets.
     this._nodeTypes[node.getType()] = this._nodeTypes[node.getType()] || [];
     this._nodeTypes[node.getType()].push(node);
-
-    if (linkInGraph) { node.linkInGraph(); }
 };
 Graph.prototype.removeNode = function(node) {
     if (!(node instanceof Node)) {
@@ -132,7 +129,7 @@ Graph.prototype.edgeExists = function(sourceId, targetId, edgeType) {
 };
 Graph.prototype._addEdge = function(sourceId, targetId, edgeType, toType) {
     if (!this.nodeExists(sourceId) || !this.nodeExists(targetId)) {
-        return utils.logEdgeTargetError(this, sourceId, targetId, edgeType);
+        return utils.logEdgeError(this, sourceId, targetId, edgeType);
     }
 
     toType = toType || this.getNodeById(targetId).getType();
@@ -150,13 +147,6 @@ Graph.prototype.getEdge = function(sourceId, targetId, edgeType) {
 };
 Graph.prototype._removeEdge = function(sourceId, targetId, edgeType) {
     this._graphImpl.removeEdge(sourceId, targetId, edgeType);
-};
-Graph.prototype.linkNodes = function() {
-    // console.log("Graph.linkNodes ------------------------");
-    this.getNodes().forEach(function(node) {
-        node.linkInGraph();
-    });
-    // console.log("Graph.linkNodes ------------------------");
 };
 Graph.prototype.inEdges = function(sourceId, targetId) {
     return this._graphImpl.inEdges(sourceId, targetId);
