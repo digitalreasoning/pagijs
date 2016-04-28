@@ -7,7 +7,6 @@ var STR_PROP = constants.STR_PROP;
 var FLOAT_PROP = constants.FLOAT_PROP;
 var INT_PROP = constants.INT_PROP;
 var BOOL_PROP = constants.BOOL_PROP;
-var CHILD_EDGE_TYPE = constants.CHILD_EDGE_TYPE;
 
 function convertValue(type, value) {
     var newVal;
@@ -75,7 +74,7 @@ Node.prototype.addEdge = function(targetId, edgeType, targetType) {
 Node.prototype.getEdges = function() {
     return this._graph.outEdges(this.getId()).map(function(edge) {
         return this._graph.getEdge(edge.v, edge.w, edge.name);
-    }, this).filter(function(edge) { return edge.getType() !== CHILD_EDGE_TYPE; });
+    }, this);
 };
 Node.prototype.getEdgesByType = function(edgeType) {
     return this.getEdges().filter(function(edge) {
