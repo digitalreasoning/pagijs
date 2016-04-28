@@ -14,10 +14,9 @@ describe('Graph manipulation for `mary` stream', function() {
             done();
         });
     }
+    beforeEach(createGraph);
 
     describe('graph functions for manipulation', function() {
-        beforeEach(createGraph);
-
         it('can create new nodes', function() {
             var node = graph.createNode('TEST NODE');
             assert(node instanceof Node);
@@ -29,7 +28,6 @@ describe('Graph manipulation for `mary` stream', function() {
 
     describe('adding a node to the graph', function() {
         var node;
-        beforeEach(createGraph);
         beforeEach(function() { node = graph.createNode('TEST NODE'); });
 
         it('node must contain a type', function() {
@@ -61,7 +59,6 @@ describe('Graph manipulation for `mary` stream', function() {
     });
     describe('adding a node to the graph with a sequence trait', function() {
         var node;
-        beforeEach(createGraph);
         beforeEach(function() { node = graph.createNode('TOK', '9000000'); });
 
         it('adding a first node', function() {
@@ -84,7 +81,6 @@ describe('Graph manipulation for `mary` stream', function() {
     });
     describe('adding an edge to a node', function() {
         var node;
-        beforeEach(createGraph);
         beforeEach(function() {
             node = graph.createNode('TOK');
         });
@@ -100,7 +96,6 @@ describe('Graph manipulation for `mary` stream', function() {
     });
     describe('removing a node from a graph', function() {
         var node, prevNode, nextNode, nodeTotalCnt, nodeTypeCnt;
-        beforeEach(createGraph);
         beforeEach(function() {
             node = graph.getNodeById('2');
             prevNode = node.previous();
@@ -121,16 +116,9 @@ describe('Graph manipulation for `mary` stream', function() {
             var sbNode = graph.getNodeById('71');
             assert.doesNotThrow(function() { graph.removeNode(sbNode); });
         });
-        it('node\'s edges are removed properly for sequences', function() {
-            assert(nextNode.hasPrevious());
-            assert(nextNode.previous() === prevNode);
-            assert(prevNode.hasNext());
-            assert(prevNode.next() === nextNode);
-        });
     });
     describe('removing an edge from a node', function() {
         var node;
-        beforeEach(createGraph);
         beforeEach(function() {
             node = graph.getNodeById('2');
             var nextEdge = node.getFirstEdgeByType('next');
