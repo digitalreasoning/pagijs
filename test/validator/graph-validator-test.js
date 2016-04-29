@@ -192,6 +192,6 @@ describe('validator validateGraph', function() {
 
     assert.equal(results.isValid, false);
     assert.equal(results.errors.length, 1);
-    assert.equal(results.errors[0].message, 'COREF is an invalid target for edge type: member');
+    assert.equal(results.errors[0].message, 'Co-Reference is an invalid target for edge type: member');
   });
 });

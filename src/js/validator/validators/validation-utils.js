@@ -2,7 +2,10 @@
 
 var constants = require('../../schema/constants');
 
-module.exports.validateArity = function validateArity(objs, spec, customErr) {
+module.exports.validateArity = validateArity;
+module.exports.isRequired = isRequired;
+
+function validateArity(objs, spec, customErr) {
   var errors = [];
   if (spec.maxArity === constants.UNBOUNDED_ARITY) { return errors; }
 
@@ -20,8 +23,8 @@ module.exports.validateArity = function validateArity(objs, spec, customErr) {
   }
 
   return errors;
-};
+}
 
-module.exports.isRequired = function isRequired(spec) {
+function isRequired(spec) {
   return ( spec.minArity > 0 );
-};
+}
