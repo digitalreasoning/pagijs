@@ -137,7 +137,7 @@ Graph.prototype._addEdge = function(sourceId, targetId, edgeType, toType) {
 
     this._graphImpl.setEdge(sourceId, targetId, newEdge, edgeType);
 };
-Graph.prototype._addEdges = function(edges) {
+Graph.prototype.addEdges = function(edges) {
     edges.forEach(function(edge) {
         this._addEdge(edge.getSourceId(), edge.getTargetId(), edge.getType(), edge.getTargetType());
     }, this);
