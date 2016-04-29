@@ -137,22 +137,35 @@ Graph.prototype._addEdge = function(sourceId, targetId, edgeType, toType) {
 
     this._graphImpl.setEdge(sourceId, targetId, newEdge, edgeType);
 };
-Graph.prototype._addEdges = function(edges) {
+Graph.prototype.addEdges = function(edges) {
     edges.forEach(function(edge) {
         this._addEdge(edge.getSourceId(), edge.getTargetId(), edge.getType(), edge.getTargetType());
     }, this);
 };
 Graph.prototype.getEdge = function(sourceId, targetId, edgeType) {
-    return this._graphImpl.edge(sourceId, targetId, edgeType);
+    var edge;
+
+    if (typeof sourceId === 'object') {
+        // source id is an edge object {v, w, name}
+        edge = this._graphImpl.edge(sourceId);
+    } else {
+        edge = this._graphImpl.edge(sourceId, targetId, edgeType);
+    }
+
+    return edge;
 };
 Graph.prototype._removeEdge = function(sourceId, targetId, edgeType) {
     this._graphImpl.removeEdge(sourceId, targetId, edgeType);
 };
 Graph.prototype.inEdges = function(sourceId, targetId) {
-    return this._graphImpl.inEdges(sourceId, targetId);
+    return this._graphImpl.inEdges(sourceId, targetId).map(function(libEdge) {
+        return this.getEdge(libEdge);
+    }, this);
 };
 Graph.prototype.outEdges = function(sourceId, targetId) {
-    return this._graphImpl.outEdges(sourceId, targetId);
+    return this._graphImpl.outEdges(sourceId, targetId).map(function(libEdge) {
+        return this.getEdge(libEdge);
+    }, this);
 };
 Graph.prototype.edgeExists = function(sourceId, targetId, type) {
     return this._graphImpl.hasEdge(sourceId, targetId, type);

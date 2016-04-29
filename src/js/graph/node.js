@@ -72,9 +72,7 @@ Node.prototype.addEdge = function(targetId, edgeType, targetType) {
     this._graph._addEdge(this.getId(), targetId, edgeType, targetType);
 };
 Node.prototype.getEdges = function() {
-    return this._graph.outEdges(this.getId()).map(function(edge) {
-        return this._graph.getEdge(edge.v, edge.w, edge.name);
-    }, this);
+    return this._graph.outEdges(this.getId());
 };
 Node.prototype.getEdgesByType = function(edgeType) {
     return this.getEdges().filter(function(edge) {
@@ -204,16 +202,16 @@ Node.prototype.previous = function(ids) {
 
     if (ids) {
         previousImplEdges = previousImplEdges.filter(function(edge) {
-            return ids.indexOf(edge.v) === -1;
+            return ids.indexOf(edge.getSourceId()) === -1;
         });
     }
 
     if (previousImplEdges.length < 1) { return undefined; }
-    return this._graph.getNodeById(previousImplEdges[0].v);
+    return this._graph.getNodeById(previousImplEdges[0].getSourceId());
 };
 Node.prototype._getEdgesImplByLabels = function(direction, labels)  {
-    return this._graph[direction + 'Edges'](this.getId()).filter(function(edgeImpl) {
-        return labels.indexOf(edgeImpl.name) !== -1;
+    return this._graph[direction + 'Edges'](this.getId()).filter(function(edge) {
+        return labels.indexOf(edge.getType()) !== -1;
     }, this._graph);
 };
 
