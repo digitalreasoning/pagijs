@@ -21,7 +21,7 @@ describe('GraphSerializer', function() {
 
     describe('serialization', function() {
         var graph,
-            filePath = path.join(__dirname, '..', 'fixtures', 'test-doc-with-cr.xml');
+            filePath = path.join(__dirname, '..', 'fixtures', 'test-doc-with-xml-entities.xml');
 
         beforeEach(function(done) {
             GraphParser.parse(fs.createReadStream(filePath)).then(function(aGraph) {
