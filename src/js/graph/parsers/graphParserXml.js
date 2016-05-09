@@ -166,13 +166,15 @@ GraphParserXml.prototype.parse = function(readableStream) {
         });
         streamParser.on("end", function() {
             graph.addEdges(edges);
-            graph.setRawContent(readableStream.rawContent);
             resolve(graph);
         });
         streamParser.on("error", function(err) {
             readableStream.pause();
             readableStream.unpipe(streamParser);
             reject(err);
+        });
+        readableStream.on('content-parsed', function(rawContent) {
+            graph.setRawContent(rawContent);
         });
         try {
             readableStream.pipe(streamParser);
