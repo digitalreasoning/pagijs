@@ -2,16 +2,19 @@
 //   Provides access to the different graph parsers available in the library.
 
 var GraphParserXml = require('../parsers/graphParserXml');
+var ContentCache = require('../parsers/content-cache');
 // var GraphParserFlat = require('./graphParserFlat');
 // var GraphParserBinary = require('./graphParserBinary');
 
 function parseXml(readableStream) {
-    return (new GraphParserXml()).parse(readableStream);
+    var cache = new ContentCache();
+    readableStream.pipe(cache);
+    return (new GraphParserXml()).parse(cache);
 }
-// function parseFlat(readableStream) { 
+// function parseFlat(readableStream) {
 //     return new GraphParserFlat(readableStream);
 // }
-// function parseBinary(readableStream) { 
+// function parseBinary(readableStream) {
 //     return new GraphParserBinary(readableStream);
 // }
 

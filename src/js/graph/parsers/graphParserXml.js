@@ -166,6 +166,7 @@ GraphParserXml.prototype.parse = function(readableStream) {
         });
         streamParser.on("end", function() {
             graph.addEdges(edges);
+            graph.setRawContent(readableStream.rawContent);
             resolve(graph);
         });
         streamParser.on("error", function(err) {

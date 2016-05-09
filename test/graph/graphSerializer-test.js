@@ -19,6 +19,23 @@ describe('GraphSerializer', function() {
         assert(typeof GraphSerializer.serializeXml === 'function');
     });
 
+    describe('serialization', function() {
+        var graph,
+            filePath = path.join(__dirname, '..', 'fixtures', 'test-doc-with-cr.xml');
+
+        beforeEach(function(done) {
+            GraphParser.parse(fs.createReadStream(filePath)).then(function(aGraph) {
+                graph = aGraph; done();
+            }, console.error);
+        });
+
+        it('should not change pagi content node', function() {
+            var serializedGraph = GraphSerializer.serialize(graph);
+            var original = fs.readFileSync(filePath, {encoding: 'utf8'});
+            assert.equal(serializedGraph, original);
+        });
+    });
+
     testStream.fullList.forEach(function(stream) {
         // if (stream.name !== 'extTokFullSchema') { return; }
         // console.log("GraphSerializer testing stream " + stream.name);

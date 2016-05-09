@@ -11,6 +11,7 @@ function Graph(id) {
     this._version = '2.0';
     this._schemaUris = [];
     this._content = null;
+    this._rawContent = null;
     this._contentType = null;
     this._spanNodeTypes = { };
     this._sequenceNodeTypes = { };
@@ -36,10 +37,15 @@ Graph.prototype.getSchemaUris = function() {
 Graph.prototype.setContent = function(content) {
     this._content = content;
 };
+Graph.prototype.setRawContent = function(rawContent) {
+    this._rawContent = rawContent;
+};
 Graph.prototype.getContent = function() {
     return this._content;
 };
-
+Graph.prototype.getRawContent = function() {
+    return this._rawContent;
+};
 Graph.prototype.setContentType = function(contentType) {
     this._contentType = contentType;
 };
