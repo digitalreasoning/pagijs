@@ -60,7 +60,7 @@ GraphSerializerXml.prototype.serialize = function(graph) {
     lines.push(this.serializeTrait(graph.getNodeTypesAsSpan(), 'asSpan'));
     lines.push(this.serializeTrait(graph.getNodeTypesAsSequence(), 'asSequence'));
     lines.push(this.serializeTrait(graph.getNodeTypesAsSpanContainer(), 'asSpanContainer'));
-    lines.push(TAB + '<content contentType="' + es(graph.getContentType()) + '">' + es(graph.getContent()) + '</content>');
+    lines.push(TAB + '<content contentType="' + es(graph.getContentType()) + '">' + graph.getRawContent() + '</content>');
     lines.push("");
     graph.getNodes().forEach(function(node) {
         lines.push(self.serializeNode(node));

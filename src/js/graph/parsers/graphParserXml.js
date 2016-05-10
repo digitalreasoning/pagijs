@@ -173,6 +173,9 @@ GraphParserXml.prototype.parse = function(readableStream) {
             readableStream.unpipe(streamParser);
             reject(err);
         });
+        readableStream.on('content-parsed', function(rawContent) {
+            graph.setRawContent(rawContent);
+        });
         try {
             readableStream.pipe(streamParser);
         } catch (e) {
